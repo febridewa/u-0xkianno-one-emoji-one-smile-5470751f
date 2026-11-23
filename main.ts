@@ -35,9 +35,17 @@
 // The program itself is deliberately trivial: the entry IS the choice, so
 // the code just writes that one chosen character, nothing else.
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const EMOJI = "🤗"; // U+1F917 Hugging Face — one emoji, nothing else.
 
 mkdirSync("/output", { recursive: true });
 writeFileSync("/output/entry.txt", EMOJI, "utf8");
+
+// Self-check against the gate: the file must be UTF-8 text of 1 to 8
+// characters, not only white space. Refuse to leave a bad entry behind:
+// a failed run is better than a silently invalid submission.
+const written = readFileSync("/output/entry.txt", "utf8");
+if ([...written].length !== 1 || written.trim().length === 0) {
+  throw new Error(`entry.txt must hold exactly one emoji, got ${JSON.stringify(written)}`);
+}
